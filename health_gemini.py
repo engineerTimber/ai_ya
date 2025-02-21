@@ -5,15 +5,19 @@ from PIL import Image
 import json
 from datetime import datetime
 
-# 設定 Gemini API Key（請填入你的 Key）
-API_KEY = "AIzaSyBXsSAGWzwahc4g8V-pxMLTlcKTcilVf_E"
-genai.configure(api_key=API_KEY)
+mode = "chat"  # 模式從這裡改 photo / record_info / record_life / chat
 
-# 建立 Gemini 模型
-model = genai.GenerativeModel("gemini-1.5-pro")
-image_url = "https://gw.alicdn.com/imgextra/i4/2697170250/O1CN01ZrPpnV1DiY1v7IzQB_!!4611686018427383114-2-item_pic.png_.webp"
+def init():
+    # 設定 Gemini API Key（請填入你的 Key）
+    API_KEY = "AIzaSyBXsSAGWzwahc4g8V-pxMLTlcKTcilVf_E"
+    genai.configure(api_key=API_KEY)
 
-mode = "photo"  # 模式從這裡改 photo / record_info / record_life / chat
+    # 建立 Gemini 模型
+    model = genai.GenerativeModel("gemini-1.5-pro")
+    image_url = "https://gw.alicdn.com/imgextra/i4/2697170250/O1CN01ZrPpnV1DiY1v7IzQB_!!4611686018427383114-2-item_pic.png_.webp"
+    chat = model.start_chat()
+
+init()
 
 # prompt在函式裡面
 def analyze_image_from_url(image_url):
@@ -69,7 +73,7 @@ def analyze_image_from_url(image_url):
         請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
         time的部分千萬不要取用圖片裡面的時間，用我提供的時間:
         """
-        response = model.generate_content(
+        response =chat.send_message(
             [prompt, "現在時間是：" + time_now, image]
         )
 
@@ -104,7 +108,6 @@ def record_info():
     return 0
 
 def record_life():
-    chat = model.start_chat()
     prompt = """
         你是一個喜歡聽我我分享生活點滴的AI醫生，接下來我會傳給你一些訊息，
         請你在分析訊息後提供一段像是python字典格式的樣子回應。例如：
@@ -122,25 +125,19 @@ def record_life():
     time_now = datetime.now().strftime("%H:%M")
     chat.send_message([prompt, "現在時間是：" + time_now])
 
-    while True:
-        user_msg = input("你: ")
-        if user_msg == "bye":
-            break
-        response = chat.send_message([user_msg, time_now])
-        dic_data = json.loads(response.text)
-        res = f"好的，已記錄\n活動: {dic_data['title']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
-        print(res)
+    user_msg = input("你: ")
+    response = chat.send_message([user_msg, "現在時間是：" + time_now])
+    dic_data = json.loads(response.text)
+    res = f"好的，已記錄\n活動: {dic_data['title']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+    return res
 
 def chat(UserInput):
-    chat = model.start_chat()
     prompt = """
         你是一個喜歡跟我聊天的AI醫生，接下來我們來聊聊天吧!
     """
     chat.send_message(prompt)
 
-    
-    user_input = UserInput
-    response = chat.send_message(user_input)
+    response = chat.send_message(UserInput)
     res = f"{response.text}"
     return res
 
