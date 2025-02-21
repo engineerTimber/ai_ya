@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 # 設定 Gemini API Key（請填入你的 Key）
-API_KEY = "AIzaSyBYITyYSdlX1HFNpx21y0_ohI4fRtbxWQ4"
+API_KEY = ""
 genai.configure(api_key=API_KEY)
 
 # 建立 Gemini 模型
