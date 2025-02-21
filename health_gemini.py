@@ -13,7 +13,7 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-1.5-pro")
 image_url = "https://gw.alicdn.com/imgextra/i4/2697170250/O1CN01ZrPpnV1DiY1v7IzQB_!!4611686018427383114-2-item_pic.png_.webp"
 
-mode = "record_life"  # 模式從這裡改 photo / record_info / record_life / chat
+mode = "photo"  # 模式從這裡改 photo / record_info / record_life / chat
 
 # prompt在函式裡面
 def analyze_image_from_url(image_url):
@@ -83,30 +83,24 @@ def analyze_image_from_url(image_url):
         '''
 
         if (dic_data["type"] == "血壓"):
-            print(f"收縮壓: {dic_data['systolic']}")
-            print(f"舒張壓: {dic_data['diastolic']}")
-            print(f"脈搏: {dic_data['pulse']}")
-            print(f"時間: {dic_data['time']}")
-            print(f"{dic_data['luv_from_ai']}")
+            res = f"收縮壓: {dic_data['systolic']}\n舒張壓: {dic_data['diastolic']}\n脈搏: {dic_data['pulse']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
         elif (dic_data["type"] == "血糖"):
-            print(f"血糖: {dic_data['glucose']}")
-            print(f"時間: {dic_data['time']}")
-            print(f"{dic_data['luv_from_ai']}")
+            res = f"血糖: {dic_data['glucose']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
         elif (dic_data["type"] == "體溫"):
-            print(f"體溫: {dic_data['temperature']}")
-            print(f"時間: {dic_data['time']}")
-            print(f"{dic_data['luv_from_ai']}")
+            res = f"體溫: {dic_data['temperature']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
         elif (dic_data["type"] == "血脂"):
-            print(f"血脂: {dic_data['lipids']}")
-            print(f"時間: {dic_data['time']}")
-            print(f"{dic_data['luv_from_ai']}")
+            res = f"血脂: {dic_data['lipids']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
         
 
     except Exception as e:
         print(f"發生錯誤: {e}")
 
 def record_info():
-    # 欸等等這個mode不會用到AI欸
+    
     return 0
 
 def record_life():
