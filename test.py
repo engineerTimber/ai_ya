@@ -13,7 +13,7 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-1.5-pro")
 image_url = "https://gw.alicdn.com/imgextra/i4/2697170250/O1CN01ZrPpnV1DiY1v7IzQB_!!4611686018427383114-2-item_pic.png_.webp"
 
-mode = "chat"  # 模式從這裡改 photo / record_info / record_life / chat
+mode = "record_life"  # 模式從這裡改 photo / record_info / record_life / chat
 
 # prompt在函式裡面
 def analyze_image_from_url(image_url):
@@ -67,7 +67,7 @@ def analyze_image_from_url(image_url):
         回傳的 `type` 僅會是「血壓」、「血糖」、「體溫」或「血脂」中的一種，請不要用其他的格式回傳，也不要回傳其他的資訊。
         luv_from_ai是AI根據這個數據對病患的關心，可以是任何中文文字，語氣請友愛一點，像是一個關心病人的醫生一樣，如果情況正常也可以鼓勵、稱讚病患。
         請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
-        date的部分一律用:
+        time的部分一律用:
         """
         response = model.generate_content(
             [prompt, time_now, image]
@@ -113,8 +113,30 @@ def record_life():
     chat = model.start_chat()
     prompt = """
         你是一個喜歡聽我我分享生活點滴的AI醫生，接下來我會傳給你一些訊息，
-        
+        請你在分析訊息後提供一段像是python字典格式的樣子回應。例如：
+        {
+            "title": "我剛剛吃了一頓豐盛的晚餐",
+            "time": "08:00",
+            "luv_from_ai": "Some words of concern for patients..."
+        }
+        title是這段訊息的主旨，不用照抄訊息，請陳述事實，
+        例如訊息如果是「我剛剛吃了一頓豐盛的晚餐」，title就可以是「吃了晚餐」，
+        luv_from_ai是你根據這段訊息提供的暖心回復，可以是任何中文文字。
+        請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
+        time是時間，我會提供:
     """
+    time_now = datetime.now().strftime("%H:%M")
+    chat.send_message([prompt, time_now])
+
+    while True:
+        user_msg = input("你: ")
+        if user_msg == "bye":
+            break
+        response = chat.send_message([user_msg, time_now])
+        dic_data = json.loads(response.text)
+        print(f"活動: {dic_data['title']}")
+        print(f"時間: {dic_data['time']}")
+        print(f"{dic_data['luv_from_ai']}\n")
 
 def chat():
     chat = model.start_chat()
@@ -129,6 +151,8 @@ def chat():
             break
         response = chat.send_message(user_input)
         print(f"AI醫生: {response.text}")
+
+
 
 if mode == "photo":
     while True:
