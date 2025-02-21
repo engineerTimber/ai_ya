@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 # 設定 Gemini API Key（請填入你的 Key）
-API_KEY = ""
+API_KEY = "AIzaSyBXsSAGWzwahc4g8V-pxMLTlcKTcilVf_E"
 genai.configure(api_key=API_KEY)
 
 # 建立 Gemini 模型
@@ -132,31 +132,29 @@ def record_life():
         print(f"時間: {dic_data['time']}")
         print(f"{dic_data['luv_from_ai']}\n")
 
-def chat():
+def chat(UserInput):
     chat = model.start_chat()
     prompt = """
         你是一個喜歡跟我聊天的AI醫生，接下來我們來聊聊天吧!
     """
     chat.send_message(prompt)
 
-    while True:
-        user_input = input("你: ")
-        if user_input == "bye":
-            break
-        response = chat.send_message(user_input)
-        print(f"AI醫生: {response.text}")
+    
+    user_input = UserInput
+    if user_input == "bye":
+        break
+    response = chat.send_message(user_input)
+    res = f"AI醫生: {response.text}"
+    return res
 
 
-
-if mode == "photo":
-    while True:
-        image_url = input("\n請輸入圖片網址: ")
-        if image_url == "bye":
-            break
+def AI_response(mode, text, image_url):
+    if mode == "photo":
         analyze_image_from_url(image_url)
-elif mode == "record_info":
-    record_info()
-elif mode == "record_life":
-    record_life()
-elif mode == "chat":
-    chat()
+    elif mode == "record_info":
+        record_info(text)
+    elif mode == "record_life":
+        record_life(text)
+    elif mode == "chat":
+        chat(text)
+    return 
