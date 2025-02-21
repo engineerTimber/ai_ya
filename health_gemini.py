@@ -67,10 +67,10 @@ def analyze_image_from_url(image_url):
         回傳的 `type` 僅會是「血壓」、「血糖」、「體溫」或「血脂」中的一種，請不要用其他的格式回傳，也不要回傳其他的資訊。
         luv_from_ai是AI根據這個數據對病患的關心，可以是任何中文文字，語氣請友愛一點，像是一個關心病人的醫生一樣，如果情況正常也可以鼓勵、稱讚病患。
         請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
-        time的部分一律用:
+        time的部分千萬不要取用圖片裡面的時間，用我提供的時間:
         """
         response = model.generate_content(
-            [prompt, time_now, image]
+            [prompt, "現在時間是：" + time_now, image]
         )
 
         res = response.text
@@ -117,10 +117,10 @@ def record_life():
         例如訊息如果是「我剛剛吃了一頓豐盛的晚餐」，title就可以是「吃了晚餐」，
         luv_from_ai是你根據這段訊息提供的暖心回復，可以是任何中文文字。
         請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
-        time是時間，我會提供:
+        time的部分千萬不要取用圖片裡面的時間，用我提供的時間:
     """
     time_now = datetime.now().strftime("%H:%M")
-    chat.send_message([prompt, time_now])
+    chat.send_message([prompt, "現在時間是：" + time_now])
 
     while True:
         user_msg = input("你: ")
@@ -128,9 +128,8 @@ def record_life():
             break
         response = chat.send_message([user_msg, time_now])
         dic_data = json.loads(response.text)
-        print(f"活動: {dic_data['title']}")
-        print(f"時間: {dic_data['time']}")
-        print(f"{dic_data['luv_from_ai']}\n")
+        res = f"好的，已記錄\n活動: {dic_data['title']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+        print(res)
 
 def chat(UserInput):
     chat = model.start_chat()
@@ -141,20 +140,15 @@ def chat(UserInput):
 
     
     user_input = UserInput
-    if user_input == "bye":
-        break
     response = chat.send_message(user_input)
-    res = f"AI醫生: {response.text}"
+    res = f"{response.text}"
     return res
 
 
 def AI_response(mode, text, image_url):
-    if mode == "photo":
-        analyze_image_from_url(image_url)
-    elif mode == "record_info":
-        record_info(text)
+    if mode == "record_info":
+        return record_info(text)
     elif mode == "record_life":
-        record_life(text)
+        return record_life(text)
     elif mode == "chat":
-        chat(text)
-    return 
+        return chat(text) 
