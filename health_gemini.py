@@ -104,8 +104,71 @@ def analyze_image_from_url(image_url):
         print(f"發生錯誤: {e}")
 
 def record_info():
-    
-    return 0
+    try:
+        # 發送請求給 Gemini API
+        time_now = datetime.now().strftime("%H:%M")
+        prompt = """
+        請分析接下來的訊息的內容，判斷它屬於以下四種數據中的哪一種：
+        1. 血壓 ( 收縮壓(mmHg)、舒張壓(mmHg)、脈搏(次/min) )
+        2. 血糖 ( 血糖(mg/dL) )
+        3. 體溫 ( 體溫(度C)、時間(YYYY-MM-DD, HH-MM) )
+        4. 血脂 ( 血脂(mmol/L) )
+
+        然後根據主題擷取相關的數值，並用長得像python字典格式的樣子輸出。例如：
+        {
+        "type": "血壓",
+        "systolic": 120,
+        "diastolic": 80,
+        "pulse": 72,
+        "time": "08:00"
+        "luv_from_ai": "Some words of concern for patients..."
+        }
+        {
+        "type": "血糖",
+        "glucose": 120,
+        "time": "08:00"
+        "luv_from_ai": "Some words of concern for patients..."
+        }
+        {
+        "type": "體溫",
+        "temperature": 120,
+        "time": "08:00"
+        "luv_from_ai": "Some words of concern for patients..."
+        }
+        {
+        "type": "血脂",
+        "lipids": 120,
+        "time": "08:00"
+        "luv_from_ai": "Some words of concern for patients..."
+        }
+        回傳的 `type` 僅會是「血壓」、「血糖」、「體溫」或「血脂」中的一種，請不要用其他的格式回傳，也不要回傳其他的資訊。
+        luv_from_ai是AI根據這個數據對病患的關心，可以是任何中文文字，語氣請友愛一點，像是一個關心病人的醫生一樣，如果情況正常也可以鼓勵、稱讚病患。
+        請回傳純粹的文字，不要加上任何額外的說明文字，例如``` ``` 、 ```json``` 、 ```yaml``` 、 ```python``` 、 ```diff``` 、 ```up等等，
+        time的部分千萬不要取用圖片裡面的時間，用我提供的時間:
+        """
+        response =chat.send_message(
+            [prompt, "現在時間是：" + time_now]
+        )
+
+        res = response.text
+        dic_data = json.loads(res)
+
+        if (dic_data["type"] == "血壓"):
+            res = f"收縮壓: {dic_data['systolic']}\n舒張壓: {dic_data['diastolic']}\n脈搏: {dic_data['pulse']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
+        elif (dic_data["type"] == "血糖"):
+            res = f"血糖: {dic_data['glucose']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
+        elif (dic_data["type"] == "體溫"):
+            res = f"體溫: {dic_data['temperature']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
+        elif (dic_data["type"] == "血脂"):
+            res = f"血脂: {dic_data['lipids']}\n時間: {dic_data['time']}\n{dic_data['luv_from_ai']}"
+            return res
+        
+
+    except Exception as e:
+        print(f"發生錯誤: {e}")
 
 def record_life():
     prompt = """
