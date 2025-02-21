@@ -6,16 +6,16 @@ import json
 from datetime import datetime
 
 # 設定 Gemini API Key（請填入你的 Key）
-API_KEY = ""
+API_KEY = "AIzaSyBYITyYSdlX1HFNpx21y0_ohI4fRtbxWQ4"
 genai.configure(api_key=API_KEY)
 
 # 建立 Gemini 模型
 model = genai.GenerativeModel("gemini-1.5-pro")
 image_url = "https://gw.alicdn.com/imgextra/i4/2697170250/O1CN01ZrPpnV1DiY1v7IzQB_!!4611686018427383114-2-item_pic.png_.webp"
 
-mode = "photo"
+mode = "chat"  # 模式從這裡改 photo / record_info / record_life / chat
 
-# prompt在這裡面
+# prompt在函式裡面
 def analyze_image_from_url(image_url):
     try:
         # 嘗試下載圖片
@@ -105,7 +105,30 @@ def analyze_image_from_url(image_url):
     except Exception as e:
         print(f"發生錯誤: {e}")
 
-# 測試：輸入你的圖片網址
+def record_info():
+    # 欸等等這個mode不會用到AI欸
+    return 0
+
+def record_life():
+    chat = model.start_chat()
+    prompt = """
+        你是一個喜歡聽我我分享生活點滴的AI醫生，接下來我會傳給你一些訊息，
+        
+    """
+
+def chat():
+    chat = model.start_chat()
+    prompt = """
+        你是一個喜歡跟我聊天的AI醫生，接下來我們來聊聊天吧!
+    """
+    chat.send_message(prompt)
+
+    while True:
+        user_input = input("你: ")
+        if user_input == "bye":
+            break
+        response = chat.send_message(user_input)
+        print(f"AI醫生: {response.text}")
 
 if mode == "photo":
     while True:
@@ -113,3 +136,9 @@ if mode == "photo":
         if image_url == "bye":
             break
         analyze_image_from_url(image_url)
+elif mode == "record_info":
+    record_info()
+elif mode == "record_life":
+    record_life()
+elif mode == "chat":
+    chat()
